@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Soil Moisture Dashboard</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css">
+    </head>
+
+    <body class="bg-dark text-light">
+    <!-- NAVBAR -->
+        <nav class="navbar navbar-expand-lg bg-dark sticky-top">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href="{{url_for('index')}}">Moisture-Dash</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarScroll">
+                    <ul class="navbar-nav nav-underline me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#">Add Plant</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#">Remove Plant</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex" role="search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    </form>
+                    <ul class="navbar-nav mb-2 ms-1 mb-lg-0" id="loginreg-btn">
+                        <li class="nav-item">
+                            <a class="btn btn-primary" href="{{url_for('login')}}">Login</a>
+                            <a class="btn btn-success" href="{{url_for('register')}}">Register</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+    <!-- MAIN CONTENT -->
+        <div class="d-flex justify-content-center align-items-center vh-100">
+
+            <div class="card text-center shadow-lg" style="width: 22rem;">
+
+                <div class="card-body bg-secondary rounded">
+
+                    <h1 class="card-title mb-4">
+                        Moisture Value for Derek
+                    </h1>
+
+                    <p class="text-muted mb-1">
+                        Raw sensor value
+                    </p>
+
+                    <p id="raw-value" class="fs-4">
+                        --
+                    </p>
+
+                    <p class="text-muted mb-1">
+                        Moisture
+                    </p>
+
+                    <p id="moisture-value" class="fs-4">
+                        --%
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <script src="../static/js/fetch_moisture.js"></script>
+        <script src="../static/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../static/js/user_handler.js"></script>
+    </body>
+</html>

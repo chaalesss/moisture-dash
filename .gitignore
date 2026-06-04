@@ -1,0 +1,67 @@
+# =========================
+# Python bytecode
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# =========================
+# Virtual environments
+# =========================
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Flask / instance folder
+# (often contains config + sqlite DB)
+# =========================
+instance/
+
+# =========================
+# Environment variables
+# (secret keys, database URIs)
+# =========================
+.env
+.flaskenv
+
+# =========================
+# Databases
+# (SQLite commonly used in Flask projects)
+# =========================
+*.sqlite3
+*.db
+
+# =========================
+# Flask-Migrate / Alembic
+# =========================
+migrations/
+
+# =========================
+# Testing / coverage
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# IDE / editor settings
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
