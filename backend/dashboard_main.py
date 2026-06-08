@@ -14,13 +14,14 @@ import os
 # import sensor data
 from sensor_main import get_moisture_data
 
-app = Flask(__name__)
+BASE_DIR = pathlib.Path(__file__).parent
+app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "../templates"), static_folder=os.path.join(BASE_DIR, "../static"))
 bcrypt = Bcrypt(app)
 
 # -------- SQL DATABASE --------
 # set base directory for database
-BASE_DIR = pathlib.Path(__file__).parent
-DB_PATH = BASE_DIR / "db" / "accounts.db"
+
+DB_PATH = BASE_DIR / '..' / "db" / "accounts.db"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
 app.config['SECRET_KEY'] = 'tempkey123'
@@ -29,6 +30,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.login_message = None
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -55,7 +57,7 @@ class RegisterForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(
         min=4, max=20)], render_kw={'placeholder': 'Username'})
     
-    password = StringField(validators=[InputRequired(), Length(
+    password = PasswordField(validators=[InputRequired(), Length(
         min=4, max=20)], render_kw={'placeholder': 'Password'})
     
     submit = SubmitField('Register')
@@ -72,7 +74,7 @@ class LoginForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(
         min=4, max=20)], render_kw={'placeholder': 'Username'})
     
-    password = StringField(validators=[InputRequired(), Length(
+    password = PasswordField(validators=[InputRequired(), Length(
         min=4, max=20)], render_kw={'placeholder': 'Password'})
     
     submit = SubmitField('Login')
@@ -88,6 +90,8 @@ class AddPlantForm(FlaskForm):
     sensor = IntegerField(validators=[InputRequired(), NumberRange(
         min=0, max=5)], render_kw={'placeholder': 'Sensor Number'})
     
+    submit = SubmitField('Add')
+    
     def validate_sensor(self, sensor):
         existing_sensor_assignment = Plants.query.filter_by(
             sensor = sensor.data).first()
@@ -99,6 +103,7 @@ class AddPlantForm(FlaskForm):
 @app.route("/")
 @login_required
 def index():
+    print(current_user.is_authenticated)
     return render_template("index.html")
 
 @app.route("/login", methods = ['GET', 'POST'])
@@ -153,13 +158,13 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-@app.route('/add')
+@app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
     form = AddPlantForm()
     
     if form.validate_on_submit():
-        new_plant = Plants(name=form.name.data, species=form.species.data, sensor=form.sensor.data)
+        new_plant = Plants(name=form.name.data, species=form.species.data, sensor=form.sensor.data, user_id=current_user.id)
         db.session.add(new_plant)
         db.session.commit()
         return redirect(url_for('add'))
@@ -171,20 +176,19 @@ def add():
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route('/api/plantinfo/<int:plant_id>')
-def store_plant_info(plant_id):
-    plant = Plants.query.get_or_404(plant_id)
-    if plant.user_id != current_user.id:
-        return {'error': 'unauthorised'}, 403
-        
-    name = plant.name
-    species = plant.species
-    chan = get_moisture_data(plant.sensor)
-    return jsonify({
-        'name': name,
-        'species': species,
-        'channel': chan
-    })
+@app.route('/api/plantinfo')
+def store_plant_info():
+    plants = Plants.query.filter_by(user_id=current_user.id).all()
+
+    return jsonify([
+        {
+            'name': plant.name,
+            'species': plant.species,
+            'moisture_data': get_moisture_data(plant.sensor)
+        }
+        for plant in plants
+    ])
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Change host IP and port here (Default: host='127.0.0.1', port='5000')
+    app.run(host='127.0.0.1', port=5500, debug=True)
