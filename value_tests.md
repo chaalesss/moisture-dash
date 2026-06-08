@@ -36,5 +36,6 @@ Inside the tub of water, the wet value also read around 350, which further solid
 **Trend**:
 when the plant was underwatered, the raw value would sit at around 550-560
 After the plant was watered to the optimal level, the raw value sat at around 310-320
+
 **Anomaly**:
 When the plant was overwatered, the value went up which means drier soil
