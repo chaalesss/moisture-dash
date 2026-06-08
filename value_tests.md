@@ -5,11 +5,11 @@
 
 This document contains 5 different tests each putting the moisture sensor into a different environment to find out how to sensor values react.
 
-## Main tests
-
-During these tess, we go off the basis that:
+During these tess, I go off the basis that:
 1. A lower value means more moisture
 2. A higher value means less moisture
+
+## Main tests
 
 **Test 1**: Completely dry reading outside of soil
 Outside of soil, the raw value read around 850. By this point, the plant will be dead.
