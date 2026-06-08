@@ -3,6 +3,8 @@
 
 # Value Tests
 
+This document contains 5 different tests each putting the moisture sensor into a different environment to find out how to sensor values react.
+
 ## Main tests
 
 During these tess, we go off the basis that:
