@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <title>Soil Moisture Dashboard</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
+        <link rel="stylesheet" href="../static/css/cards.css">
         <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css">
     </head>
 
@@ -22,13 +22,9 @@
                             <a class="nav-link text-white" href="{{url_for('add')}}">Add Plant</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#">Remove Plant</a>
+                            <a class="nav-link text-white" href="{{url_for('delete')}}">Remove Plant</a>
                         </li>
                     </ul>
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-                        <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
                     <ul class="navbar-nav mb-2 ms-1 mb-lg-0" id="loginreg-btn">
                         <li class="nav-item">
                             <a class="btn btn-primary" href="{{url_for('login')}}">Login</a>
@@ -40,36 +36,15 @@
         </nav>
 
     <!-- MAIN CONTENT -->
-        <div class="d-flex justify-content-center align-items-center vh-100">
-
-            <div class="card text-center shadow-lg" style="width: 22rem;">
-
-                <div class="card-body bg-secondary rounded">
-
-                    <h1 class="card-title mb-4">
-                        Moisture Value for Derek
-                    </h1>
-
-                    <p class="text-muted mb-1">
-                        Raw sensor value
-                    </p>
-
-                    <p id="raw-value" class="fs-4">
-                        --
-                    </p>
-
-                    <p class="text-muted mb-1">
-                        Moisture
-                    </p>
-
-                    <p id="moisture-value" class="fs-4">
-                        --%
-                    </p>
-
+        <div class="container-fluid py-5 px-4">
+            <h1 class="mb-4 text-center">Moisture-Dash</h1>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="container py-4">
+                <div class="row justify-content-center" id="plant-grid">
+                    <!-- Plant cards will be injected here -->
                 </div>
-
             </div>
-
         </div>
 
         <script src="../static/js/fetch_moisture.js"></script>

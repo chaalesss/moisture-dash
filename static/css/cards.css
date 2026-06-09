@@ -1,0 +1,9 @@
+.plant-card {
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.plant-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 1rem 2rem rgba(0,0,0,.4);
+}

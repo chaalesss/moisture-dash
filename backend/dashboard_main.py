@@ -1,5 +1,5 @@
 # import flask libraries
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -66,6 +66,7 @@ class RegisterForm(FlaskForm):
         existing_user_username = User.query.filter_by(
             username = username.data).first()
         if existing_user_username:
+            flash('That username already exists, please choose a different username', 'danger')
             raise ValidationError(
                 "That username already exists, please choose another one")
 
@@ -96,6 +97,7 @@ class AddPlantForm(FlaskForm):
         existing_sensor_assignment = Plants.query.filter_by(
             sensor = sensor.data).first()
         if existing_sensor_assignment:
+            flash('This sensor is already assigned to another plant, please choose a different sensor.', 'danger')
             raise ValidationError(
                 'Sensor is already assigned to another plant, please pick another sensor')
 
@@ -114,29 +116,30 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
-                login_user(user)
-                
-                session['username'] = user.username
-                
+                login_user(user)                
                 return redirect(url_for('index'))
+            else:
+                flash('Login failed: Password is incorrect', 'danger')
+        else:
+            flash('Login failed: Incorrect username or username does not exist', 'danger')
             
     return render_template('login.html', form=form)
 
 @app.route('/api/userinfo')
 def store_user_info():
-    username = session.get('username')
-    
-    if username:
-        return jsonify({
-            'logged_in': True,
-            "username": username
-        })
-    
-    else:
-        return jsonify({
-            'logged_in': False,
-            'username': None
-        })
+    if not current_user.is_authenticated:
+        return jsonify({"logged_in": False})
+
+    user = User.query.get(current_user.id)
+
+    if not user:
+        logout_user()
+        return jsonify({"logged_in": False})
+
+    return jsonify({
+        "logged_in": True,
+        "username": user.username,
+    })
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -147,6 +150,7 @@ def register():
         new_user = User(username=form.username.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
+        flash('Account successfully created', 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html', form=form)
@@ -167,9 +171,33 @@ def add():
         new_plant = Plants(name=form.name.data, species=form.species.data, sensor=form.sensor.data, user_id=current_user.id)
         db.session.add(new_plant)
         db.session.commit()
+        flash(f'{new_plant.name} Added', 'success')
         return redirect(url_for('add'))
     
     return render_template('add.html', form=form)
+
+@app.route('/delete')
+@login_required
+def delete():
+    return render_template('delete.html')
+
+@app.route('/api/delete', methods=['DELETE'])
+@login_required
+def delete_plant():
+    plant_id = request.args.get('plant_id', type=int)
+    
+    plant = db.session.get(Plants, plant_id)
+    
+    if not plant:
+        return {'error': 'Student not found'}, 404
+    
+    if plant.user_id != current_user.id:
+        return {'error': 'Unauthorised'}, 403
+    
+    db.session.delete(plant)
+    db.session.commit()
+    
+    return {'message': 'Deleted successfully'}
 
 @app.route('/dashboard')
 @login_required
@@ -182,13 +210,19 @@ def store_plant_info():
 
     return jsonify([
         {
+            'id': plant.id,
             'name': plant.name,
             'species': plant.species,
-            'moisture_data': get_moisture_data(plant.sensor)
+            'moisture_data': get_moisture_data(plant.sensor),
+            'sensor': plant.sensor
         }
         for plant in plants
     ])
+    
+@app.route('/plant/<int:plant_id>')
+@login_required
+def plant(plant_id):
+    return render_template('plant.html', plant_id=plant_id)
 
 if __name__ == "__main__":
-    # Change host IP and port here (Default: host='127.0.0.1', port='5000')
-    app.run(host='127.0.0.1', port=5500, debug=True)
+    app.run(debug=True)

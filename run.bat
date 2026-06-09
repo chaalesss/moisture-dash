@@ -22,6 +22,10 @@ IF NOT EXIST db (
 echo Starting Flask server...
 set FLASK_APP=backend/dashboard_main.py
 set FLASK_DEBUG=1
+
+REM Change host IP and port here (Default: host='127.0.0.1', port='5000')
+set FLASK_RUN_HOST=127.0.0.1
+set FLASK_RUN_PORT=5000
 flask run
 pause
 

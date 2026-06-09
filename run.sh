@@ -22,6 +22,10 @@ fi
 echo 'Starting Flask server...'
 export FLASK_APP=backend/dashboard_main.py
 export FLASK_DEBUG=1
+
+# Change host IP and port here (Default: host='127.0.0.1', port='5000')
+export FLASK_RUN_HOST=127.0.0.1
+export FLASK_RUN_PORT=5000
 flask run
 
 echo "Flask stopped. Press enter to close."

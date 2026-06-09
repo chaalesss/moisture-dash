@@ -19,10 +19,6 @@
                         <li class="nav-item">
                         </li>
                     </ul>
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-                        <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
                     <ul class="navbar-nav mb-2 ms-1 mb-lg-0" id="loginreg-btn">
                         <li class="nav-item">
                             <a class="btn btn-primary" href="{{url_for('login')}}">Login</a>
@@ -63,7 +59,32 @@
             </div>
         </div>
 
+        <div class="toast-container top-0 start-50 translate-middle-x p-3">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+
+                        <div class="toast text-bg-{{ category }}" role="alert">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    {{ message }}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="btn-close btn-close-white me-2 m-auto"
+                                    data-bs-dismiss="toast">
+                                </button>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
         <script src="../static/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="../static/js/user_handler.js"></script>
+        <script src="../static/js/toasts.js"></script>
     </body>
 </html>
