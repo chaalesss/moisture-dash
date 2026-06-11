@@ -11,8 +11,32 @@ from flask_bcrypt import Bcrypt
 import pathlib
 import os
 
-# import sensor data
-from sensor_main import get_moisture_data
+DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
+    
+if DEBUG:
+    #import random for random value gen
+    import random
+    BASE_VALUE = 500   # base value that the generate value function can increment by
+
+    DRY_VALUE = 850   # sensor value when soil is completely dry
+    WET_VALUE = 350   # sensor value when soil is very wet
+
+    # generate dummy values for the sake of testing, making a rpi and moisture sensor not needed
+    def generate_value(value):
+        increment = random.randint(-10, 10)
+        value += increment
+        value = max(350, min(value, 850))
+        return value
+        
+    def moisture_percent(value):
+        percent = (DRY_VALUE - value) / (DRY_VALUE - WET_VALUE) * 100
+        percent = max(0, min(100, percent))  # clamp 0–100
+        return int(percent)
+
+else:
+    # import sensor data
+    from sensor_main import get_moisture_data
+    mode_check = True
 
 BASE_DIR = pathlib.Path(__file__).parent
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "../templates"), static_folder=os.path.join(BASE_DIR, "../static"))
@@ -100,6 +124,7 @@ class AddPlantForm(FlaskForm):
             flash('This sensor is already assigned to another plant, please choose a different sensor.', 'danger')
             raise ValidationError(
                 'Sensor is already assigned to another plant, please pick another sensor')
+
 
 # -------- MAIN APP --------
 @app.route("/")
@@ -204,21 +229,46 @@ def delete_plant():
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route('/api/plantinfo')
-def store_plant_info():
-    plants = Plants.query.filter_by(user_id=current_user.id).all()
-
-    return jsonify([
-        {
-            'id': plant.id,
-            'name': plant.name,
-            'species': plant.species,
-            'moisture_data': get_moisture_data(plant.sensor),
-            'sensor': plant.sensor
+if DEBUG:
+    @app.route('/api/plantinfo')
+    def store_plant_info():
+        plants = Plants.query.filter_by(user_id=current_user.id).all()
+        
+        # Generate dummy values for the sake of testing, meaning the raspberry pi and moisture sensors aren't needed
+        raw_value = generate_value(BASE_VALUE)
+        
+        moisture_data = {
+            'raw_value': raw_value,
+            'moisture': moisture_percent(raw_value)
         }
-        for plant in plants
-    ])
-    
+
+        return jsonify([
+            {
+                'id': plant.id,
+                'name': plant.name,
+                'species': plant.species,
+                'moisture_data': moisture_data,
+                'sensor': plant.sensor
+            }
+            for plant in plants
+        ])
+
+else:
+    @app.route('/api/plantinfo')
+    def store_plant_info():
+        plants = Plants.query.filter_by(user_id=current_user.id).all()
+
+        return jsonify([
+            {
+                'id': plant.id,
+                'name': plant.name,
+                'species': plant.species,
+                'moisture_data': get_moisture_data(plant.sensor),
+                'sensor': plant.sensor
+            }
+            for plant in plants
+        ])
+
 @app.route('/plant/<int:plant_id>')
 @login_required
 def plant(plant_id):

@@ -14,11 +14,7 @@ For example, create a folder in your documents folder called 'moisture-dash' and
 > [!WARNING]
 > **DO NOT** try to run any of the python files individually using the 'python' command, you will only run into errors and make it harder for yourself.
 
-### For Windows users
-
-Simply navigate inside of the folder that you extracted the files to and double click on the file named `run.bat`
-
-### For MacOS/Linux users
+### To run the application
 
 Open up a new terminal and start by navigating inside the folder where you extracted the files to using the command
 

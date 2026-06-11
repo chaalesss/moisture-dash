@@ -11,6 +11,7 @@ call venv\Scripts\activate.bat
 echo Installing requirements...
 pip install --upgrade pip
 pip install -r requirements.txt
+set DEBUG=true
 
 IF NOT EXIST db (
     echo database does not exist. Creating database...
