@@ -1,5 +1,6 @@
-// get table elements
-const table_body = document.getElementById("plant-table-body");
+// get elements
+const grid = document.getElementById("plant-grid");
+starter_text = document.getElementById('starter-text')
 
 // get modal elements and create new modal with bootstrap
 const modal_element = document.getElementById('delete-modal');
@@ -15,7 +16,7 @@ const delete_toast = new bootstrap.Toast(toast_element);
 // define state variables
 let selected_plant_id = null;
 let selected_plant_name = null;
-let selected_row = null;
+let selected_col = null;
 
 // fetch records based from search args
 async function fetch_plants() {
@@ -23,74 +24,62 @@ async function fetch_plants() {
         // fetch json data
         const response = await fetch(`/api/plantinfo`);
         const data = await response.json();
-        
-        console.log(data);
-        
-        // run the data through an insertion sort algorithm
-        let sorted_data = sort_plants(data);
-        
-        const table_body = document.getElementById("plant-table-body");
 
-        table_body.innerHTML = ""
+        if (data != '') {
+            starter_text.innerHTML='';
+            
+            console.log(data);
+            
+            const grid = document.getElementById("plant-grid");
 
-        sorted_data.forEach(plant => {
+            grid.innerHTML = ""
 
-            const row = document.createElement('tr');
+            data.forEach(plant => {
 
-            row.innerHTML = `
-                <td>${plant.name}</td>
-                <td>${plant.species}</td>
-                <td>${plant.moisture_data.moisture}</td>
-                <td>${plant.moisture_data.raw_value}</td>
-                <td>${plant.sensor}</td>
-            `;
+                const col = document.createElement('div');
+                col.classList.add('col-md-4', 'mb-3')
 
-            row.style.cursor = 'pointer';
+                col.innerHTML = `
+                <div class="card plant-card bg-secondary text-light h-100 shadow">
+                        <div class="card-body text-center">
+                            <h1>${plant.name}</h1>
+                            <p>${plant.species}</p>
+                            <hr>
+                            <h2>Moisture Level</h2>
+                            <h3>${plant.moisture_data.moisture}%</h3>
+                            <small>
+                                Raw: ${plant.moisture_data.raw_value}
+                            </small>
+                        </div>
+                    </div>
+                `;
 
-            row.addEventListener('click', () => {
-                
-                selected_plant_id = plant.id;
-                selected_plant_name = plant.name;
+                col.style.cursor = 'pointer';
 
-                console.log(selected_plant_id);
+                col.addEventListener('click', () => {
+                    
+                    selected_plant_id = plant.id;
+                    selected_plant_name = plant.name;
 
-                selected_row = row;
+                    console.log(selected_plant_id);
 
-                modal_text.textContent = `Delete plant: ${plant.name}? This action cannot be undone.`;
+                    selected_col = col;
 
-                delete_toast.hide()
-                modal.show();
-                
-                return plant.name;
-            })
+                    modal_text.textContent = `Delete plant: ${plant.name}? This action cannot be undone.`;
 
-            table_body.appendChild(row);
-        });
+                    delete_toast.hide()
+                    modal.show();
+                    
+                    return plant.name;
+                })
+
+                grid.appendChild(col);
+            });
+        }
+
     } catch (error) {
         console.error(`Error: ${error} JSON file may be empty`)
     }    
-}
-
-// use an insersion sort to sort the plants by alphabetical order
-function sort_plants(arr) {
-    // start loop at index 1
-    for (let i = 1; i < arr.length; i++) {
-
-        // pick the current item
-        let key = arr[i];
-        let j = i - 1;
-
-        // compare backwards based on name (alphabetical order) and shift elements
-        while (j >=0 && arr[j].name.toLowerCase() > key.name.toLowerCase()) {
-            arr[j + 1] = arr[j];
-            j--;
-        }
-
-        // insert key into the correct position
-        arr[j + 1] = key;
-    }
-
-    return arr;
 }
 
 confirm_btn.addEventListener('click', async () => {
@@ -109,8 +98,8 @@ confirm_btn.addEventListener('click', async () => {
         const result = await response.json();
         console.log(result);
 
-        if (selected_row) {
-            selected_row.remove();
+        if (selected_col) {
+            selected_col.remove();
         }
 
         toast_body.textContent = `${selected_plant_name} deleted successfully.`;
@@ -122,6 +111,7 @@ confirm_btn.addEventListener('click', async () => {
     }
 
     selected_plant_id = null;
-    selected_row = null;
+    selected_col = null;
 });
 fetch_plants();
+setInterval(fetch_plants, 2500);

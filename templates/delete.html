@@ -4,6 +4,7 @@
         <title>Moisture-Dash Delete</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../static/css/cards.css">
         <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css">
     </head>
     
@@ -36,35 +37,15 @@
 
         <div class="container-fluid py-5 px-4">
             <h1 class="mb-4 text-center">Moisture-Dash: Delete Plant</h1>
-            <div class="row g-4 justify-content-center">
-            </div>
-            <div class="row mt-5 justify-content-center">
-                <div class="col-lg-9">
-                    <div class="card shadow">
-                        <div class="card-body bg-secondary rounded">
-                            <h3 class="mb-3">
-                                Plants
-                            </h3>
-
-                            <div class="table-responsive">
-                                <table class="table table-dark table-striped table-hover align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Name</th>
-                                            <th scope="col">Species</th>
-                                            <th scope="col">Moisture</th>
-                                            <th scope="col">Raw</th>
-                                            <th scope="col">Sensor</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody id="plant-table-body">
-
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="container py-4">
+                <div class="text-center" id="starter-text">
+                    <h2 class="my-5">It seems that you don't have any plants added yet, to get started, add a plant and it will show up here.</h2>
+                    <a class="btn btn-lg btn-outline-info my-5" href="{{url_for('add')}}">Add Plant</a>
+                </div>
+                <div class="row justify-content-center" id="plant-grid">
+                    <!-- Plant cards will be injected here -->
                 </div>
             </div>
         </div>

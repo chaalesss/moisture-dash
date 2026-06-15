@@ -1,3 +1,5 @@
+const starter_text = document.getElementById('starter-text')
+
 let plants = [];
 
 function render_grid(data) {
@@ -15,6 +17,7 @@ function render_grid(data) {
                         <h1>${plant.name}</h1>
                         <p>${plant.species}</p>
                         <hr>
+                        <h2>Moisture Level</h2>
                         <h3>${plant.moisture_data.moisture}%</h3>
                         <small>
                             Raw: ${plant.moisture_data.raw_value}
@@ -37,9 +40,12 @@ async function load_plants() {
         const response = await fetch("/api/plantinfo");
         const data = await response.json();
 
-        console.log(data);
-
-        render_grid(data);
+        if(data!='') {
+            console.log(data);
+            starter_text.innerHTML='';
+            render_grid(data);
+        } else {return};
+        
     } catch (error) {
         console.error("Failed to load moisture data:", error);
     }

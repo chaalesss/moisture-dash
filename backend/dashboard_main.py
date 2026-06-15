@@ -11,19 +11,19 @@ from flask_bcrypt import Bcrypt
 import pathlib
 import os
 
+# Check for debug mode
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
     
 if DEBUG:
     #import random for random value gen
-    import random
-    BASE_VALUE = 500   # base value that the generate value function can increment by
+    import random 
 
     DRY_VALUE = 850   # sensor value when soil is completely dry
     WET_VALUE = 350   # sensor value when soil is very wet
 
     # generate dummy values for the sake of testing, making a rpi and moisture sensor not needed
     def generate_value(value):
-        increment = random.randint(-10, 10)
+        increment = random.randint(-50, 50)
         value += increment
         value = max(350, min(value, 850))
         return value
@@ -36,7 +36,6 @@ if DEBUG:
 else:
     # import sensor data
     from sensor_main import get_moisture_data
-    mode_check = True
 
 BASE_DIR = pathlib.Path(__file__).parent
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "../templates"), static_folder=os.path.join(BASE_DIR, "../static"))
@@ -135,6 +134,7 @@ def index():
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
+    logout_user()
     form = LoginForm()
     
     if form.validate_on_submit():
@@ -230,24 +230,34 @@ def dashboard():
     return render_template('dashboard.html')
 
 if DEBUG:
+    # create a dict to store different plant values to simulate different sensors
+    plant_values = {}
+    
+    
     @app.route('/api/plantinfo')
     def store_plant_info():
         plants = Plants.query.filter_by(user_id=current_user.id).all()
         
         # Generate dummy values for the sake of testing, meaning the raspberry pi and moisture sensors aren't needed
-        raw_value = generate_value(BASE_VALUE)
-        
-        moisture_data = {
-            'raw_value': raw_value,
-            'moisture': moisture_percent(raw_value)
-        }
+        for plant in plants:
+            
+            # generate a random val for each plant id
+            if plant.id not in plant_values:
+                plant_values[plant.id] = random.randint(350, 850)
+                
+            plant_values[plant.id] = generate_value(plant_values[plant.id])
+            
+            print(plant_values)
 
         return jsonify([
             {
                 'id': plant.id,
                 'name': plant.name,
                 'species': plant.species,
-                'moisture_data': moisture_data,
+                'moisture_data': {
+                    'raw_value': plant_values[plant.id],
+                    'moisture': moisture_percent(plant_values[plant.id])
+                },
                 'sensor': plant.sensor
             }
             for plant in plants
