@@ -11,6 +11,7 @@ from flask_bcrypt import Bcrypt
 import pathlib
 import os
 
+
 # Check for debug mode
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
     
@@ -44,9 +45,11 @@ bcrypt = Bcrypt(app)
 # -------- SQL DATABASE --------
 # set base directory for database
 
-DB_PATH = BASE_DIR / '..' / "db" / "accounts.db"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    'mysql://moisture_user:moisture_pass@localhost/moisture_dashboard'
+)
 app.config['SECRET_KEY'] = 'tempkey123'
 db = SQLAlchemy(app)
 
@@ -118,7 +121,7 @@ class AddPlantForm(FlaskForm):
     
     def validate_sensor(self, sensor):
         existing_sensor_assignment = Plants.query.filter_by(
-            sensor = sensor.data).first()
+            sensor = sensor.data, user_id=current_user.id).first()
         if existing_sensor_assignment:
             flash('This sensor is already assigned to another plant, please choose a different sensor.', 'danger')
             raise ValidationError(
@@ -284,5 +287,5 @@ else:
 def plant(plant_id):
     return render_template('plant.html', plant_id=plant_id)
 
-if __name__ == "__main__":
+if __name__ == "__main__":        
     app.run(debug=True)
