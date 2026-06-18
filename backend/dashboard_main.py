@@ -10,7 +10,7 @@ from flask_bcrypt import Bcrypt
 # import other misc libraries
 import pathlib
 import os
-
+import pymysql
 
 # Check for debug mode
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
@@ -44,11 +44,8 @@ bcrypt = Bcrypt(app)
 
 # -------- SQL DATABASE --------
 # set base directory for database
-
-
-
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    'mysql://moisture_user:moisture_pass@localhost/moisture_dashboard'
+    'mysql+pymysql://moisture_user:moisture_pass@localhost/moisture_dashboard'
 )
 app.config['SECRET_KEY'] = 'tempkey123'
 db = SQLAlchemy(app)

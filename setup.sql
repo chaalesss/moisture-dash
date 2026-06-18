@@ -5,11 +5,10 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 
 FLUSH PRIVILEGES;
-EOF
 
-CREATE DATABASE moisture_dashboard;
+CREATE DATABASE IF NOT EXISTS moisture_dashboard;
 
-CREATE USER 'moisture_user'@'localhost'
+CREATE USER IF NOT EXISTS 'moisture_user'@'localhost'
 IDENTIFIED BY 'moisture_pass';
 
 GRANT ALL PRIVILEGES

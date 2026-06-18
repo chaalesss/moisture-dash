@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+sudo raspi-config nonint do_spi 0
+
 if [ ! -d 'venv' ]; then
     echo 'Venv does not exist. Creating venv...'
     python3 -m venv venv
@@ -8,51 +10,51 @@ fi
 
 source venv/bin/activate
 
-echo 'Installing requirements...'
+echo 'Checking Requirements...'
 pip install --upgrade pip
 pip install -r requirements.txt
+deactivate
 
 echo 'Checking MariaDB...'
 
-if ! command -v mysql >/dev/null 2>&1; then
+if ! command -v mysql >/dev/null 2>&1 && ! command -v mariadb >/dev/null 2>&1; then
     echo "MariaDB not found. Installing..."
-
-    # for debian/ubuntu users
-    if [[ -f /etc/debian_version ]]; then
-        sudo apt update
-        sudo apt install -y mariadb-server
-        sudo service mysql start
-    fi
-
-    #
-    if command -v dnf >/dev/null 2>&1; then
-        sudo dnf install -y mariadb-server
-        sudo systemctl start mariadb
-    fi
+    sudo apt update
+    sudo apt install pkg-config python3-dev default-libmysqlclient-dev build-essential
+    sudo apt install -y mariadb-server
+    sudo service mysql start
 else
     echo "MariaDB already installed."
 fi
 
-echo 'Waiting for MariaDB'
-until mysqladmin ping -u root --silent; do
+echo 'Waiting for MariaDB...'
+
+until mysqladmin ping --silent; do
     sleep 1
 done
 
-echo 'Setting up Database...'
+if [ -f 'setup.sql' ]; then
+    echo 'Setting up Database...'
+    sudo mysql < setup.sql
+fi
 
-mysql -u root < setup.sql
+source venv/bin/activate
 
-echo "Creating database tables..."
-python3 backend/create_tables.py
+if [ -e 'backend/create_tables.py' ]; then
+    echo "Creating database tables..."
+    python3 backend/create_tables.py
+    
+fi
 
 echo 'Starting Flask server...'
 
 export FLASK_APP=backend/dashboard_main.py
 export FLASK_DEBUG=1
 
+
 # Change host IP and port here
 export FLASK_RUN_HOST=0.0.0.0
-export FLASK_RUN_PORT=5000
+export FLASK_RUN_PORT=5001
 
 flask run
 

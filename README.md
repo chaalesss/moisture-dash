@@ -2,10 +2,29 @@
 
 **A web application application that runs on Raspberry Pi for adding plants and monitoring their moisture through moisture sensors attached to the Raspberry Pi, the application runs on a Python backend using a flask library. It is not at a current state where it can be used as a fully working application, it's just a proof of concept that Python can be used as a backend**
 
-## Getting started with setting up the database
+## Getting started
 
-> [!NOTE]
-> Please note that this guide may change as the application is updated and compiled.
+### Prerequisites
+
+- A Raspberry Pi 5 with Ubuntu Server or any other Debian based Linux Distro
+- An MCP3008 Microchip wired up to the Pi on a breadboard
+- Capacitive Soil 2.0.0 moisture sensors connected to the MCP3008 channels
+
+> [!INFO]
+> If you don't own one or more of these requirements, there is a mode which can be run without the need for the Raspberry Pi or Moisture Sensors. This is a debug mode which can also be used to take the MCP3008 and moisture sensors out of the equation which could be useful for anyone trying to figure out whats wrong.
+> 
+> Wiring the MCP3008 can be hard, you can find a guide on how to wire it to the Raspberry Pi with this link:
+>  https://randomnerdtutorials.com/raspberry-pi-analog-inputs-python-mcp3008/#wire-mcp3008-raspberry-pi
+>
+> To wire the Capacitive soil moisture sensor, you need to wire it like this:
+> - VCC (Voltage): Connect this pin to the 5V output of your microcontroller or external power source.
+> - GND (Ground): Connect this pin to the ground (GND) of your microcontroller.
+> - AOUT (Analog Output): Connect this pin to an analog input pin on your MCP3008
+>
+> Refer to the pin diagram and table for the MCP3008 to wire it correctly found here:
+> https://randomnerdtutorials.com/raspberry-pi-analog-inputs-python-mcp3008/#introducing-mcp3008
+
+### Downloading and the application
 
 Downloading and getting the application working is fairly simple, start by downloading the ZIP file from the 'Code' button, then extract the files into a seperate folder on your computer.
 
@@ -14,7 +33,7 @@ For example, create a folder in your documents folder called 'moisture-dash' and
 > [!WARNING]
 > **DO NOT** try to run any of the python files individually using the 'python' command, you will only run into errors and make it harder for yourself.
 
-### To run the application
+### Running the application
 
 Open up a new terminal and start by navigating inside the folder where you extracted the files to using the command
 
@@ -23,6 +42,10 @@ cd /path/to/application/folder
 ```
 
 then you need to run the file called `run.sh` using whichever shell you use normally
+
+#### If you have a Raspberry Pi fully setup with the moisture sensors
+
+You need to run the main run shellscript
 
 **Bash:**
 
@@ -35,6 +58,26 @@ bash run.sh
 ```bash
 zsh run.sh
 ```
+
+#### If you are on MacOS, don't have any of the requirements or are trying to debug the application
+
+you need to run the debug shellscript
+
+**Bash:**
+
+```bash
+bash run_dbg.sh
+```
+
+**Zsh:**
+
+```bash
+zsh run_dbg.sh
+```
+
+#### If you're on Windows
+
+I made a Powershell script to run the debug version, I haven't tested it out but you can run it by simply double clicking `run_dbg.ps1` in the file explorer.
 
 If everything is working correctly, your command line should return something like:
 
