@@ -131,3 +131,5 @@ https://{your.chosen.ip.here}:{your chosen port here}
 If everything is working properly, this should direct you to a login page. You wont have an account yet, but you can create one by clicking the green register button in the top right of the navbar, or by clicking the link that says 'Dont have an account? Register'.
 
 Once you have created an account and logged in, you will now be able to view the main dashboard, where you can add and monitor plants.
+
+# DOCS NOT YET FINISHED...
