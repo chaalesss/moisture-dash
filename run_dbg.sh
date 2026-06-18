@@ -47,15 +47,15 @@ until mysqladmin ping --silent; do
 done
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    if [ -f 'setup.sql' ]; then
+    if [ -e 'backend/setup.sql' ]; then
         echo 'Setting up Database...'
-        mysql < setup.sql
+        mysql < backend/setup.sql
 
     fi
 else
-    if [ -f 'setup.sql' ]; then
+    if [ -e 'backend/setup.sql' ]; then
         echo 'Setting up Database...'
-        sudo mysql < setup.sql
+        sudo mysql < backend/setup.sql
 
     fi
 fi

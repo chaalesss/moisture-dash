@@ -41,7 +41,7 @@ while ($true) {
 
 Write-Host "Checking setup.sql..."
 
-if (Test-Path "setup.sql") {
+if (Test-Path "backend/setup.sql") {
     Write-Host "Setting up database..."
     Get-Content setup.sql -Raw | mysql
     

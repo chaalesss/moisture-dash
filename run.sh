@@ -33,9 +33,9 @@ until mysqladmin ping --silent; do
     sleep 1
 done
 
-if [ -f 'setup.sql' ]; then
+if [ -e 'backend/setup.sql' ]; then
     echo 'Setting up Database...'
-    sudo mysql < setup.sql
+    sudo mysql < backend/setup.sql
 fi
 
 source venv/bin/activate
