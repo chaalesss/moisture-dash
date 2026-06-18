@@ -20,8 +20,10 @@ $mysqlExists = Get-Command mysql -ErrorAction SilentlyContinue
 $mariadbExists = Get-Command mariadb -ErrorAction SilentlyContinue
 
 if (-not $mysqlExists -and -not $mariadbExists) {
-    Write-Host "MariaDB not found."
-    winget install MariaDB.MariaDB
+    Write-Host "MariaDB not found. Installing now..."
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    choco install mariadb -y
     exit 1
 }
 else {
