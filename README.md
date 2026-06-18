@@ -10,7 +10,7 @@
 - An MCP3008 Microchip wired up to the Pi on a breadboard
 - Capacitive Soil 2.0.0 moisture sensors connected to the MCP3008 channels
 
-> [!INFO]
+> [!NOTE]
 > If you don't own one or more of these requirements, there is a mode which can be run without the need for the Raspberry Pi or Moisture Sensors. This is a debug mode which can also be used to take the MCP3008 and moisture sensors out of the equation which could be useful for anyone trying to figure out whats wrong.
 > 
 > Wiring the MCP3008 can be hard, you can find a guide on how to wire it to the Raspberry Pi with this link:
