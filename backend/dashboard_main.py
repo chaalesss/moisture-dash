@@ -114,7 +114,7 @@ class AddPlantForm(FlaskForm):
     sensor = IntegerField(validators=[InputRequired(), NumberRange(
         min=0, max=5)], render_kw={'placeholder': 'Sensor Number'})
     
-    submit = SubmitField('Add')
+    submit = SubmitField('Add Plant')
     
     def validate_sensor(self, sensor):
         existing_sensor_assignment = Plants.query.filter_by(
@@ -246,8 +246,6 @@ if DEBUG:
                 plant_values[plant.id] = random.randint(350, 850)
                 
             plant_values[plant.id] = generate_value(plant_values[plant.id])
-            
-            print(plant_values)
 
         return jsonify([
             {
@@ -282,7 +280,50 @@ else:
 @app.route('/plant/<int:plant_id>')
 @login_required
 def plant(plant_id):
-    return render_template('plant.html', plant_id=plant_id)
+    plant = Plants.query.filter_by(id=plant_id).first()
+    return render_template('plant.html', plant_id=plant_id, plant_name=plant.name)
 
+if DEBUG:
+    @app.route('/api/plant/<int:plant_id>')
+    @login_required
+    def plant_single(plant_id):
+        plant = Plants.query.filter_by(id=plant_id).first()
+        
+        if plant.id not in plant_values:
+            plant_values[plant.id] = random.randint(350, 850)
+            
+        plant_values[plant.id] = generate_value(plant_values[plant.id])
+        
+        plant_info = {
+            'id': plant.id,
+            'name': plant.name,
+            'species': plant.species,
+            'moisture_data': {
+                'raw': plant_values[plant.id],
+                'moisture': moisture_percent(plant_values[plant.id])},
+            'sensor': plant.sensor
+        }
+        
+        print(plant_info)
+        
+        return jsonify(plant_info)
+
+else:
+    @app.route('/api/plant/<int:plant_id>')
+    @login_required
+    def plant_single(plant_id):
+        plant = Plants.query.filter_by(id=plant_id).first()
+        
+        plant_info = {
+            'id': plant.id,
+            'name': plant.name,
+            'species': plant.species,
+            'moisture_data': get_moisture_data(plant.sensor),
+            'sensor': plant.sensor
+        }
+        print(plant_info)
+        
+        return jsonify(plant_info)
+    
 if __name__ == "__main__":        
     app.run(debug=True)

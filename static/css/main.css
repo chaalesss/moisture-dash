@@ -1,0 +1,24 @@
+body {
+    background: linear-gradient(
+        120deg,
+        #d9f99d,
+        #86efac,
+        #22c55e,
+        #15803d
+    );
+    min-height: 100vh;
+}
+
+.navbar {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: none;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.modal-transparent {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    border: none;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}

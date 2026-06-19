@@ -1,3 +1,5 @@
+# TODO: Get this running on Windows
+
 $ErrorActionPreference = "Stop"
 
 Write-Host "Checking Python venv..."

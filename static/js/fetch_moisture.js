@@ -10,7 +10,7 @@ function render_grid(data) {
         data.forEach(plant => {
             grid.innerHTML += `
             <div class="col-md-4 mb-3">
-                <div class="card plant-card bg-secondary text-light h-100 shadow"
+                <div class="card plant-card h-100 shadow"
                     onclick="openPlant(${plant.id})"
                     style="cursor:pointer">
                     <div class="card-body text-center">
@@ -27,7 +27,7 @@ function render_grid(data) {
             </div>`
         });
     } catch (error) {
-
+        console.error(error)
     }
 }
 
@@ -44,10 +44,12 @@ async function load_plants() {
             console.log(data);
             starter_text.innerHTML='';
             render_grid(data);
-        } else {return};
+        } else {
+            throw new Error('Json file empty')
+        };
         
     } catch (error) {
-        console.error("Failed to load moisture data:", error);
+        console.error(error)
     }
 }
 load_plants();

@@ -12,7 +12,7 @@ async function load_user() {
 
             account_section.innerHTML = `
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle text-white" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     ${data.username}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">

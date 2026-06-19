@@ -40,7 +40,7 @@ async function fetch_plants() {
                 col.classList.add('col-md-4', 'mb-3')
 
                 col.innerHTML = `
-                <div class="card plant-card bg-secondary text-light h-100 shadow">
+                <div class="card plant-card h-100 shadow">
                         <div class="card-body text-center">
                             <h1>${plant.name}</h1>
                             <p>${plant.species}</p>
