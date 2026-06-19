@@ -23,7 +23,6 @@ if (-not $mysqlExists -and -not $mariadbExists) {
     Write-Host "MariaDB not found. Installing now..."
     Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
     choco install mariadb -y
-    exit 1
 }
 else {
     Write-Host "MariaDB already installed."
