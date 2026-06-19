@@ -30,6 +30,7 @@ function card_info(data) {
         moisture_percent.innerHTML = `<strong>Moisture:</strong> ${data.moisture_data.moisture}%`;
         raw_value.innerHTML = `<strong>Raw Value:</strong> ${data.moisture_data.raw}`;
         
+        // This displays the plants condition based on a few different moisture ranges
         if (data.moisture_data.moisture < 25) {
             plant_status.innerHTML = `
             <strong>Status:</strong>
@@ -47,8 +48,8 @@ function card_info(data) {
             <strong>Status:</strong>
             <span class="badge bg-success">Sufficiently Watered</span>`
         }
-    } catch (error) {
-        console.error(error);
+    } catch (hands) {
+        console.error(hands);
         throw hands // pissing myself this is too funny not to keep in
     }
 }

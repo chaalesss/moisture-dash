@@ -11,6 +11,9 @@ from flask_bcrypt import Bcrypt
 import pathlib
 import os
 import pymysql
+import threading
+import time
+from datetime import datetime, timezone, timedelta
 
 # Check for debug mode
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
@@ -18,10 +21,12 @@ DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 if DEBUG:
     #import random for random value gen
     import random 
+    
+    plant_values = {} # Where the dummy data is stored so it gives the illusion that each plant has its own seperate data
 
     DRY_VALUE = 850   # sensor value when soil is completely dry
     WET_VALUE = 350   # sensor value when soil is very wet
-
+    
     # generate dummy values for the sake of testing, making a rpi and moisture sensor not needed
     def generate_value(value):
         increment = random.randint(-50, 50)
@@ -29,10 +34,40 @@ if DEBUG:
         value = max(350, min(value, 850))
         return value
         
-    def moisture_percent(value):
+    def percent(value):
         percent = (DRY_VALUE - value) / (DRY_VALUE - WET_VALUE) * 100
         percent = max(0, min(100, percent))  # clamp 0–100
         return int(percent)
+    
+    def sensor_loop(app):
+        print('Thread Started')
+        with app.app_context():
+            while True:
+                print('Sensor Loop Running')
+                for plant in Plants.query.all():
+                    # initialise if missing
+                    if plant.id not in plant_values:
+                        plant_values[plant.id] = random.randint(350, 850)
+                    # simulate sensor change
+                    new_value = generate_value(plant_values[plant.id])
+                    plant_values[plant.id] = new_value
+                    # save to history
+                    reading = MoistureHistory(
+                        plant_id=plant.id,
+                        raw_value=new_value,
+                        moisture_percent=percent(new_value),
+                    )
+                    db.session.add(reading)
+                db.session.commit()
+                
+                cutoff = datetime.now(timezone.utc) - timedelta(minutes=1, seconds=30)
+                
+                MoistureHistory.query.filter(
+                    MoistureHistory.timestamp < cutoff
+                ).delete()
+                db.session.commit()
+
+                time.sleep(10)
 
 else:
     # import sensor data
@@ -47,8 +82,16 @@ bcrypt = Bcrypt(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     'mysql+pymysql://moisture_user:moisture_pass@localhost/moisture_dashboard'
 )
-app.config['SECRET_KEY'] = 'tempkey123'
+app.config['SECRET_KEY'] = 'tempkey123' # This key isnt securing shit
 db = SQLAlchemy(app)
+
+if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    thread = threading.Thread(
+        target=sensor_loop,
+        args=(app,),
+        daemon=True
+    )
+    thread.start()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -73,6 +116,16 @@ class Plants(db.Model):
     sensor = db.Column(db.Integer)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+class MoistureHistory(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    raw_value = db.Column(db.Integer, nullable = False)
+    moisture_percent = db.Column(db.Integer, nullable = False)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    plant_id = db.Column(db.Integer, db.ForeignKey('plants.id'), nullable = False)
+    
+    plant = db.relationship('Plants', backref = db.backref('moisture_history', cascade = 'all, delete-orphan'))
 
 # -------- FORMS --------
 # Register
@@ -126,15 +179,17 @@ class AddPlantForm(FlaskForm):
 
 
 # -------- MAIN APP --------
+# Welcome to app routing spaghetti noodle hell...
+
 @app.route("/")
 @login_required
 def index():
-    print(current_user.is_authenticated)
     return render_template("index.html")
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
     logout_user()
+    # Pass this variable into the render template then the form can be easily created in the HTML
     form = LoginForm()
     
     if form.validate_on_submit():
@@ -151,6 +206,7 @@ def login():
     return render_template('login.html', form=form)
 
 @app.route('/api/userinfo')
+# Store user info in json file which can then be fetched on the frontend to display account info
 def store_user_info():
     if not current_user.is_authenticated:
         return jsonify({"logged_in": False})
@@ -172,7 +228,7 @@ def register():
     
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(username=form.username.data, password=hashed_password)
+        new_user = User(username=form.username.data, password=hashed_password) 
         db.session.add(new_user)
         db.session.commit()
         flash('Account successfully created', 'success')
@@ -230,10 +286,6 @@ def dashboard():
     return render_template('dashboard.html')
 
 if DEBUG:
-    # create a dict to store different plant values to simulate different sensors
-    plant_values = {}
-    
-    
     @app.route('/api/plantinfo')
     def store_plant_info():
         plants = Plants.query.filter_by(user_id=current_user.id).all()
@@ -254,7 +306,7 @@ if DEBUG:
                 'species': plant.species,
                 'moisture_data': {
                     'raw_value': plant_values[plant.id],
-                    'moisture': moisture_percent(plant_values[plant.id])
+                    'moisture': percent(plant_values[plant.id])
                 },
                 'sensor': plant.sensor
             }
@@ -300,7 +352,7 @@ if DEBUG:
             'species': plant.species,
             'moisture_data': {
                 'raw': plant_values[plant.id],
-                'moisture': moisture_percent(plant_values[plant.id])},
+                'moisture': percent(plant_values[plant.id])},
             'sensor': plant.sensor
         }
         
@@ -324,6 +376,25 @@ else:
         print(plant_info)
         
         return jsonify(plant_info)
+
+@app.route('/api/plant/<int:plant_id>/history')
+@login_required
+def store_history(plant_id):
+    history = MoistureHistory.query\
+        .filter_by(plant_id=plant_id)\
+        .order_by(MoistureHistory.timestamp.asc())\
+        .all()
+        
+    history_data = []
     
-if __name__ == "__main__":        
-    app.run(debug=True)
+    for reading in history:
+        history_data.append({
+            'time': reading.timestamp.strftime("%a %H:%M:%S"),
+            'raw': reading.raw_value,
+            'moisture': reading.moisture_percent
+        })
+        
+    return jsonify(history_data)
+
+if __name__ == "__main__":
+    app.run(debug=True, use_reloader=False)

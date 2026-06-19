@@ -1,4 +1,4 @@
-# TODO: Get this running on Windows
+# TODO: Get this working on Windows (fuck microsoft)
 
 $ErrorActionPreference = "Stop"
 
@@ -21,9 +21,12 @@ Write-Host "Checking MariaDB..."
 $mysqlExists = Get-Command mysql -ErrorAction SilentlyContinue
 $mariadbExists = Get-Command mariadb -ErrorAction SilentlyContinue
 
-if (-not $mysqlExists -and -not $mariadbExists) {
+
+if (-not $mysqlExists -and -not $mariadbExists) { # These checks apparently dont work,
     Write-Host "MariaDB not found. Installing now..."
     Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    # Maybe it's just my stupid fucking pc but I cannot for the LIFE of me seem to get the choco command to actually work, if someone else reads this
+    # Please help me.
     choco install mariadb -y
 }
 else {
