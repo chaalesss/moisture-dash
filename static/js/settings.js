@@ -1,0 +1,1 @@
+// Currently empty but in the near future I plan to add some settings to customise the experience of the website
