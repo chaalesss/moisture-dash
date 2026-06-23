@@ -40,7 +40,7 @@ if DEBUG:
         return int(percent)
     
     def sensor_job(app):
-        print('Job ran at', datetime.now(timezone.utc))
+        print('Moisture history logged at', datetime.now(ZoneInfo("Europe/London")).strftime('%a %d %b %Y %H:%M:%S'))
         with app.app_context():
             for plant in Plants.query.all():
                 # initialise if missing
@@ -70,7 +70,7 @@ else:
     from sensor_main import get_moisture_data
     
     def sensor_job(app):
-        print('Job ran at', datetime.now(timezone.utc))
+        print('Moisture history logged at', datetime.now(timezone.utc))
         with app.app_context():
             #unpack moisture data
             moisture_data = get_moisture_data(plant.sensor)
@@ -191,9 +191,9 @@ class AddPlantForm(FlaskForm):
 # -------- MAIN APP --------
 # Welcome to app routing spaghetti noodle hell...
 
-# Seet up moisture history job
+# Set up moisture history job
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-    scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler(timezone = ZoneInfo('Europe/London'))
 
     if DEBUG:
         scheduler.add_job(
@@ -209,8 +209,8 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         scheduler.add_job(
             func=sensor_job,
             trigger='cron',
-            hour=6, #Every 6 hours
-            minute=0, 
+            hour='*/6', # run the job to take a measurement every day at 00:00, 06:00, 12:00, and 18:00
+            minute=0,
             second=0,
             args=[app],
             max_instances=1, # Prevents overlapping runs
@@ -389,7 +389,7 @@ if DEBUG:
             'name': plant.name,
             'species': plant.species,
             'moisture_data': {
-                'raw': plant_values[plant.id],
+                'raw_value': plant_values[plant.id],
                 'moisture': percent(plant_values[plant.id])},
             'sensor': plant.sensor
         }
@@ -428,7 +428,7 @@ def store_history(plant_id):
     for reading in history:
         history_data.append({
             'time': reading.timestamp,
-            'raw': reading.raw_value,
+            'raw_value': reading.raw_value,
             'moisture': reading.moisture_percent
         })
         

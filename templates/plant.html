@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="../static/css/cards.css">
         <link rel="stylesheet" href="../static/css/main.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     </head>
 
     <body data-plant-id="{{ plant_id }}">
@@ -48,12 +49,14 @@
 
                 <!-- Plant Info Card -->
                 <div class="card shadow-sm flex-grow-1">
-                    <div class="card-body overflow-auto">
+                    <div class="card-body my-5 overflow-auto">
                         <h2 id='plant-name' class="card-title text-center">Plant Name</h2>
-
                         <p id='plant-species' class="text-text text-center"><strong>Species:</strong> -----</p>
+
+                        <br>
+
                         <h2 class="card-title text-center">Moisture Info</h2>
-                        <p id="moisture-percent" class="card-text text-center"><strong>Moisture:</strong> --%</p>
+                        <p id="moisture-percent" class="card-text text-center" style="font-size: 22px;"><strong>Moisture:</strong> --%</p>
                         <p id="raw-value" class="card-text text-center"><strong>Raw Value:</strong> ---</p>
                         <p id="plant-status" class="card-text text-center">
                             <strong>Status:</strong>
@@ -63,23 +66,19 @@
                     </div>
                 </div>
                 <!-- Upload Card -->
-                <div class="card shadow-sm">
+                <div class="card shadow-sm" style="flex: 0 0 500px;">
                     <div class="card-body">
                         <h5 class="card-title">Upload Plant Photo (Under development...)</h5>
 
-                        <form enctype="multipart/form-data">
+                        <div class="align-items-center text-center">
+                            <label for="input-file" id="drop-area">
+                                <input type="file" accept="image/*" id="input-file">
+                                <div id="img-view">
+                                    <i class="fa-solid fa-cloud-arrow-up fa-10x"></i>
+                                </div>
+                            </label>
+                        </div>
 
-                            <div class="mb-3">
-                                <input class="form-control"
-                                    type="file"
-                                    name="photo"
-                                    accept="image/*">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">
-                                Upload
-                            </button>
-                        </form>
                     </div>
                 </div>
 

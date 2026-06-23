@@ -18,7 +18,7 @@ async function fetch_history() {
     } catch(error) {
         console.error(error);
     }
-}
+};
 
 function create_chart(history) {
     console.log(`function create_chart run`)
@@ -62,11 +62,10 @@ function create_chart(history) {
     })
 };
 
-function update_chart(history){
+function update_chart(history) {
     const latest = history[history.length - 1];
 
     if (last_timestamp === latest.time) return;
-
     last_timestamp = latest.time;
 
     const formatted_time = new Date(latest.time).toLocaleTimeString([], {
@@ -74,16 +73,35 @@ function update_chart(history){
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit'
-    })
+    });
 
+    const dataset = moisture_chart.data.datasets[0];
+
+    // remove old + add placeholder
     moisture_chart.data.labels.push(formatted_time);
-    moisture_chart.data.datasets[0].data.push(latest.moisture);
+    dataset.data.push(0);
 
-    moisture_chart.update({
-        duration: 400,
-        easing: 'easeOutQuart'
+    const max_points = 10;
+
+    if (moisture_chart.data.labels.length > max_points) {
+        moisture_chart.data.labels.shift();
+        dataset.data.shift();
+    }
+
+    // update without animation
+    moisture_chart.update('none');
+
+    // next frame >>> grow bar
+    requestAnimationFrame(() => {
+        dataset.data[dataset.data.length - 1] = latest.moisture;
+
+        moisture_chart.update({
+            duration: 500,
+            easing: 'easeOutCubic'
+        });
     });
 };
+
 window.addEventListener("DOMContentLoaded", () => {
     setInterval(fetch_history, 2500)
     fetch_history();   // creates chart immediately

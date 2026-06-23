@@ -28,7 +28,7 @@ function card_info(data) {
         plant_name.textContent = data.name;
         plant_species.innerHTML = `<strong>Species:</strong> ${data.species}`;
         moisture_percent.innerHTML = `<strong>Moisture:</strong> ${data.moisture_data.moisture}%`;
-        raw_value.innerHTML = `<strong>Raw Value:</strong> ${data.moisture_data.raw}`;
+        raw_value.innerHTML = `<strong>Raw Value:</strong> ${data.moisture_data.raw_value}`;
         
         // This displays the plants condition based on a few different moisture ranges
         if (data.moisture_data.moisture < 25) {
