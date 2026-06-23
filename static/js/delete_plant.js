@@ -41,18 +41,36 @@ async function fetch_plants() {
 
                 col.innerHTML = `
                 <div class="card plant-card h-100 shadow">
-                        <div class="card-body text-center">
-                            <h1>${plant.name}</h1>
-                            <p>${plant.species}</p>
-                            <hr>
-                            <h2>Moisture Level</h2>
-                            <h3>${plant.moisture_data.moisture}%</h3>
-                            <small>
-                                Raw: ${plant.moisture_data.raw_value}
-                            </small>
-                        </div>
+
+                    <div class="glare"></div>
+
+                    <div class="card-body text-center">
+                        <h1>${plant.name}</h1>
+                        <p>${plant.species}</p>
+                        <hr>
+                        <h2>Moisture Level</h2>
+                        <h3>${plant.moisture_data.moisture}%</h3>
+                        <small>
+                            Raw: ${plant.moisture_data.raw_value}
+                        </small>
                     </div>
+                </div>
                 `;
+
+                const card = col.querySelector('.plant-card');
+                const glare = col.querySelector('.glare');
+
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+
+                    glare.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                    glare.style.setProperty('--y', `${e.clientY - rect.top}px`);
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    glare.style.setProperty("--x", "-100px");
+                    glare.style.setProperty("--y", "-100px");
+                });
 
                 col.style.cursor = 'pointer';
 

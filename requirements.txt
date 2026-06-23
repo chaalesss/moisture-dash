@@ -16,7 +16,7 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
 PyMySQL==1.2.0
-spidev==3.8
+spidev==3.8 # This lib specifically only works on Raspberry Pi's
 SQLAlchemy==2.0.49
 typing_extensions==4.15.0
 Werkzeug==3.1.7

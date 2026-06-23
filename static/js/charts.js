@@ -1,3 +1,4 @@
+let last_timestamp=null
 let moisture_chart;
 
 async function fetch_history() {
@@ -24,12 +25,18 @@ function create_chart(history) {
     const ctx = document.getElementById('moisture-chart');
 
     // Doing this while tipsy so i'll see how well this turns out i guess
+    // Sober me here: I infact managed to pull it off
     moisture_chart = new Chart(ctx, {
         type: 'bar',
 
         data: {
-            labels: history.map(
-                reading => reading.time
+            labels: history.map(reading =>
+                new Date(reading.time).toLocaleTimeString([], {
+                    weekday: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                })
             ),
 
             datasets: [{
@@ -56,15 +63,27 @@ function create_chart(history) {
 };
 
 function update_chart(history){
+    const latest = history[history.length - 1];
 
-    moisture_chart.data.labels =
-        history.map(x => x.time);
+    if (last_timestamp === latest.time) return;
 
-    moisture_chart.data.datasets[0].data =
-        history.map(x => x.moisture);
+    last_timestamp = latest.time;
 
-    moisture_chart.update();
-}
+    const formatted_time = new Date(latest.time).toLocaleTimeString([], {
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    })
+
+    moisture_chart.data.labels.push(formatted_time);
+    moisture_chart.data.datasets[0].data.push(latest.moisture);
+
+    moisture_chart.update({
+        duration: 400,
+        easing: 'easeOutQuart'
+    });
+};
 window.addEventListener("DOMContentLoaded", () => {
     setInterval(fetch_history, 2500)
     fetch_history();   // creates chart immediately

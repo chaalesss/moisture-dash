@@ -11,9 +11,9 @@ from flask_bcrypt import Bcrypt
 import pathlib
 import os
 import pymysql
-import threading
-import time
+from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 
 # Check for debug mode
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
@@ -39,39 +39,57 @@ if DEBUG:
         percent = max(0, min(100, percent))  # clamp 0–100
         return int(percent)
     
-    def sensor_loop(app):
-        print('Thread Started')
+    def sensor_job(app):
+        print('Job ran at', datetime.now(timezone.utc))
         with app.app_context():
-            while True:
-                print('Sensor Loop Running')
-                for plant in Plants.query.all():
-                    # initialise if missing
-                    if plant.id not in plant_values:
-                        plant_values[plant.id] = random.randint(350, 850)
-                    # simulate sensor change
-                    new_value = generate_value(plant_values[plant.id])
-                    plant_values[plant.id] = new_value
-                    # save to history
-                    reading = MoistureHistory(
-                        plant_id=plant.id,
-                        raw_value=new_value,
-                        moisture_percent=percent(new_value),
-                    )
-                    db.session.add(reading)
-                db.session.commit()
-                
-                cutoff = datetime.now(timezone.utc) - timedelta(minutes=1, seconds=30)
-                
-                MoistureHistory.query.filter(
-                    MoistureHistory.timestamp < cutoff
-                ).delete()
-                db.session.commit()
-
-                time.sleep(10)
+            for plant in Plants.query.all():
+                # initialise if missing
+                if plant.id not in plant_values:
+                    plant_values[plant.id] = random.randint(350, 850)
+                # simulate sensor change
+                new_value = generate_value(plant_values[plant.id])
+                plant_values[plant.id] = new_value
+                # save to history
+                reading = MoistureHistory(
+                    plant_id=plant.id,
+                    raw_value=new_value,
+                    moisture_percent=percent(new_value),
+                )
+                db.session.add(reading)
+            db.session.commit()
+            
+            cutoff = datetime.now(timezone.utc) - timedelta(minutes=1, seconds=30)
+            
+            MoistureHistory.query.filter(
+                MoistureHistory.timestamp < cutoff
+            ).delete()
+            db.session.commit()
 
 else:
     # import sensor data
     from sensor_main import get_moisture_data
+    
+    def sensor_job(app):
+        print('Job ran at', datetime.now(timezone.utc))
+        with app.app_context():
+            #unpack moisture data
+            moisture_data = get_moisture_data(plant.sensor)
+            for plant in Plants.query.all():
+                # save to history
+                reading = MoistureHistory(
+                    plant_id=plant.id,
+                    raw_value=moisture_data['raw_value'],
+                    moisture_percent=moisture_data['moisture'],
+                )
+                db.session.add(reading)
+            db.session.commit()
+            
+            cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+            
+            MoistureHistory.query.filter(
+                MoistureHistory.timestamp < cutoff
+            ).delete()
+            db.session.commit()
 
 BASE_DIR = pathlib.Path(__file__).parent
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "../templates"), static_folder=os.path.join(BASE_DIR, "../static"))
@@ -84,14 +102,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 )
 app.config['SECRET_KEY'] = 'tempkey123' # This key isnt securing shit
 db = SQLAlchemy(app)
-
-if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-    thread = threading.Thread(
-        target=sensor_loop,
-        args=(app,),
-        daemon=True
-    )
-    thread.start()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -180,6 +190,34 @@ class AddPlantForm(FlaskForm):
 
 # -------- MAIN APP --------
 # Welcome to app routing spaghetti noodle hell...
+
+# Seet up moisture history job
+if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    scheduler = BackgroundScheduler()
+
+    if DEBUG:
+        scheduler.add_job(
+            func=sensor_job,
+            trigger='cron',
+            second='*/10',
+            args=[app],
+            max_instances=1, # Prevents overlapping runs
+            coalesce=True # Skips backlog if it lags
+        )
+
+    else:
+        scheduler.add_job(
+            func=sensor_job,
+            trigger='cron',
+            hour=6, #Every 6 hours
+            minute=0, 
+            second=0,
+            args=[app],
+            max_instances=1, # Prevents overlapping runs
+            coalesce=True # Skips backlog if it lags
+        )
+
+    scheduler.start()
 
 @app.route("/")
 @login_required
@@ -389,7 +427,7 @@ def store_history(plant_id):
     
     for reading in history:
         history_data.append({
-            'time': reading.timestamp.strftime("%a %H:%M:%S"),
+            'time': reading.timestamp,
             'raw': reading.raw_value,
             'moisture': reading.moisture_percent
         })
