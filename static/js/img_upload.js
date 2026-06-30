@@ -15,12 +15,41 @@ change_button.addEventListener('click', () => {
     input_file.click();
 });
 
+// Drag over upload area
+drop_area.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    drop_area.classList.add('dragover');
+});
+
+// Drag leaves upload area
+drop_area.addEventListener('dragleave', () => {
+    drop_area.classList.remove('dragover');
+});
+
+// File dropped
+drop_area.addEventListener('drop', (e) => {
+    e.preventDefault();
+
+    drop_area.classList.remove('dragover');
+
+    const files = e.dataTransfer.files;
+
+    if (files.length > 0) {
+        input_file.files = files;
+        upload_image();
+    }
+});
+
 input_file.addEventListener("change", upload_image);
 
 async function upload_image() {
     console.log("upload_image called");
 
-    if (plant_image.src && !plant_image.src.endsWith(window.location.href)) {
+    const file = input_file.files[0];
+    console.log("File:", file);
+    if (!file) return;
+
+    if (plant_image.getAttribute('src')) {
         try {
             const response = await fetch(`/delete-image/${plant_id}`, { method: 'DELETE' });
             const data = await response.json();
@@ -29,6 +58,7 @@ async function upload_image() {
                 return;
             }
             plant_image.src = '';
+            input_file.value = '';
             image_preview.classList.add('d-none');
             document.getElementById('image-buttons').classList.add('d-none');
             upload_placeholder.classList.remove('d-none');
@@ -37,10 +67,6 @@ async function upload_image() {
             return;
         }
     }
-
-    const file = input_file.files[0];
-    console.log("File:", file);
-    if (!file) return;
 
     // Temporary preview before upload finishes
     plant_image.src = URL.createObjectURL(file);
@@ -81,6 +107,7 @@ function delete_image() {
         }
 
         plant_image.src = '';
+        input_file.value = '';
         image_preview.classList.add('d-none');
         document.getElementById('image-buttons').classList.add('d-none');
         upload_placeholder.classList.remove('d-none');

@@ -183,7 +183,7 @@ class AddPlantForm(FlaskForm):
         min = 4, max=20)], render_kw={'placeholder': 'Plant Species'})
     
     sensor = IntegerField(validators=[InputRequired(), NumberRange(
-        min=0, max=5)], render_kw={'placeholder': 'Sensor Number'})
+        min=0, max=4)], render_kw={'placeholder': 'Sensor Number'})
     
     submit = SubmitField('Add Plant')
     
