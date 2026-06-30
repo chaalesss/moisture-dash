@@ -67,6 +67,11 @@ htmlcov/
 Thumbs.db
 
 # =========================
+# Upload folder
+# =========================
+uploads/
+
+# =========================
 # Personal files
 # =========================
 personal_notes.txt
