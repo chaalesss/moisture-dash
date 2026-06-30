@@ -11,6 +11,8 @@ from flask_bcrypt import Bcrypt
 import pathlib
 import os
 import pymysql
+from werkzeug.utils import secure_filename
+import uuid
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
@@ -58,7 +60,7 @@ if DEBUG:
                 db.session.add(reading)
             db.session.commit()
             
-            cutoff = datetime.now(timezone.utc) - timedelta(minutes=1, seconds=30)
+            cutoff = datetime.now(timezone.utc) - timedelta(minutes=1, seconds=40)
             
             MoistureHistory.query.filter(
                 MoistureHistory.timestamp < cutoff
@@ -100,8 +102,12 @@ bcrypt = Bcrypt(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     'mysql+pymysql://moisture_user:moisture_pass@localhost/moisture_dashboard'
 )
-app.config['SECRET_KEY'] = 'tempkey123' # This key isnt securing shit
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 db = SQLAlchemy(app)
+
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "../static/uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -124,6 +130,8 @@ class Plants(db.Model):
     name = db.Column(db.String(20))
     species = db.Column(db.String(20))
     sensor = db.Column(db.Integer)
+    
+    image = db.Column(db.String(100), nullable = True)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
@@ -371,7 +379,11 @@ else:
 @login_required
 def plant(plant_id):
     plant = Plants.query.filter_by(id=plant_id).first()
-    return render_template('plant.html', plant_id=plant_id, plant_name=plant.name)
+    return render_template(
+        'plant.html',
+        plant=plant,
+        plant_id=plant_id,
+        plant_name=plant.name)
 
 if DEBUG:
     @app.route('/api/plant/<int:plant_id>')
@@ -433,6 +445,70 @@ def store_history(plant_id):
         })
         
     return jsonify(history_data)
+
+@app.route('/upload-image/<int:plant_id>', methods=['POST'])
+@login_required
+def upload_image(plant_id):
+    if 'image' not in request.files:
+        return {
+            'error': 'No image'
+        }, 400
+    
+    image = request.files['image']
+    
+    if image.filename == '':
+        return {
+            'error': 'Empty filename'
+        }, 400
+        
+    filename = secure_filename(image.filename)
+    
+    extension = filename.split('.')[-1]
+    filename = f'{uuid.uuid4()}.{extension}'
+    
+    filepath = os.path.join(
+        app.config['UPLOAD_FOLDER'],
+        filename
+    )
+    
+    plant = Plants.query.filter_by(id=plant_id).first()
+    
+    if not plant:
+        return {
+            'error': 'No plant ID found'
+        }, 404
+    
+    image.save(filepath)
+    
+    plant.image = filename
+
+    db.session.commit()
+    
+    return {
+        'filename': filename
+    }
+    
+@app.route('/delete-image/<int:plant_id>', methods=['DELETE'])
+@login_required
+def delete_image(plant_id):
+    plant = Plants.query.filter_by(id=plant_id).first()
+    
+    if not plant:
+        return {
+            'error': 'No plant ID found'
+        }, 404
+        
+    if plant.image:
+        path = os.path.join(
+            app.config['UPLOAD_FOLDER'],
+            plant.image
+            )
+        
+        if os.path.exists(path):
+            os.remove(path)
+            plant.image = None
+            db.session.commit()
+            return {'success': 'True'}
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)

@@ -1,0 +1,17 @@
+@media (min-width: 992px) {
+    .dashboard-container {
+        height: calc(100vh - 56px - 0.1rem);
+    }
+
+    .dashboard-row {
+        height: 100%;
+    }
+}
+
+.dashboard-container {
+    height: calc(100vh - 56px - 0.1rem); /* subtract navbar height */
+}
+
+.dashboard-row {
+    height: 100%;
+}

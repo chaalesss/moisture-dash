@@ -39,4 +39,3 @@ def get_moisture_data(sensor):
         "raw_value": round(raw_value, 1),
         "moisture": round(percent, 1)
     }
-    

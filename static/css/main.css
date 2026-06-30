@@ -9,15 +9,15 @@ body {
     min-height: 100vh;
 }
 
-.navbar {
-    background: rgba(255, 255, 255, 0.2);
+.modal-transparent {
+    background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px);
     border: none;
     box-shadow: 0 8px 30px rgba(0,0,0,0.15);
 }
 
-.modal-transparent {
-    background: rgba(255, 255, 255, 0.5);
+.navbar {
+    background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
     border: none;
     box-shadow: 0 8px 30px rgba(0,0,0,0.15);
