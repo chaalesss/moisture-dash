@@ -8,7 +8,7 @@ A web application application that runs on Raspberry Pi for adding plants and mo
 
 - A Raspberry Pi 5 with Ubuntu Server or any other Debian based Linux Distro
 - An MCP3008 Microchip wired up to the Pi on a breadboard
-- Capacitive Soil 2.0.0 moisture sensors connected to the MCP3008 channels (you can find them here: [](https://thepihut.com/products/capacitive-soil-moisture-sensor?variant=32137736421438&country=GB&currency=GBP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gad_source=1&gad_campaignid=11673057096&gbraid=0AAAAADfQ4GGfXd-Q6EcTrRtpYx0sD_aVy&gclid=CjwKCAjwifjVBhBKEiwAYx4K9Liytz59oILRDi6OLtQSTe5LhvIezgZoHDDL8-lYNhbBKRml0fdCFxoCL8YQAvD_BwE))
+- [Capacitive Soil Moisture Sensor 2.0.0](https://thepihut.com/products/capacitive-soil-moisture-sensor?variant=32137736421438&country=GB&currency=GBP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gad_source=1&gad_campaignid=11673057096&gbraid=0AAAAADfQ4GGfXd-Q6EcTrRtpYx0sD_aVy&gclid=CjwKCAjwifjVBhBKEiwAYx4K9Liytz59oILRDi6OLtQSTe5LhvIezgZoHDDL8-lYNhbBKRml0fdCFxoCL8YQAvD_BwE) connected to the MCP3008 channels
 
 > [!NOTE]
 > If you don't own one or more of these requirements, there is a mode which can be run without the need for the Raspberry Pi or Moisture Sensors. This is a debug mode which can also be used to take the MCP3008 and moisture sensors out of the equation which could be useful for anyone trying to figure out whats wrong.
