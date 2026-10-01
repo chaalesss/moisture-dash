@@ -14,6 +14,7 @@ A web application application that runs on Raspberry Pi for adding plants and mo
 > If you don't own one or more of these requirements, there is a mode which can be run without the need for the Raspberry Pi or Moisture Sensors. This is a debug mode which can also be used to take the MCP3008 and moisture sensors out of the equation which could be useful for anyone trying to figure out whats wrong.
 >
 > Wiring the MCP3008 can be hard, you can find a guide on how to wire it to the Raspberry Pi with this link:
+>
 > [MCP3008 Wiring Guide](https://randomnerdtutorials.com/raspberry-pi-analog-inputs-python-mcp3008/#wire-mcp3008-raspberry-pi)
 >
 > To wire the Capacitive soil moisture sensor, you need to wire it like this:
@@ -23,6 +24,7 @@ A web application application that runs on Raspberry Pi for adding plants and mo
 > - AOUT (Analog Output): Connect this pin to an analog input pin on your MCP3008
 >
 > Refer to the pin diagram and table for the MCP3008 to wire it correctly found here:
+>
 > [MCP3008 Pin Diagram](https://randomnerdtutorials.com/raspberry-pi-analog-inputs-python-mcp3008/#introducing-mcp3008)
 
 ### Downloading and the application
@@ -138,6 +140,7 @@ Moisture dash runs locally on the Raspberry Pi 5 as a web application, it uses p
 Flask is a lightweight WSGI web application framework that runs on python, this allows it to use python as a backend language for the website, and this is where all the processing for the moisture sensor happens before it is sent to the application.
 
 You can read more about Flask and how it works using the link below:
+
 [Welcome to Flask - Flask Documentation (3.1.x)](https://flask.palletsprojects.com/en/stable/)
 
 Flask has many different libraries and applications built in which can help with the development of a website, you can import whatever you need from Flask along with the base framework, so you are'nt importing anything unnecessary.
@@ -273,4 +276,3 @@ def login():
 ---
 
 **`Bcrypt`**: A cryptography library that allows you to generate and check hashes for your passwords, making sure that all passwords are stored safely and securely.
-
