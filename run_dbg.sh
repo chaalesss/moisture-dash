@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -e
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$script_dir"
+
+dotenv_file=".env"
 
 if [ ! -d 'venv' ]; then
     echo 'Venv does not exist. Creating venv...'
@@ -66,7 +70,15 @@ export DEBUG=true
 if [ -e 'backend/create_tables.py' ]; then
     echo "Creating database tables..."
     python3 backend/create_tables.py
+fi
 
+if ! grep -qE '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY=' "$dotenv_file" 2>/dev/null; then
+    echo "SECRET_KEY is missing. Generating one..."
+    source venv/bin/activate
+    python3 tools/generate_keys.py
+    deactivate
+else
+    echo "SECRET_KEY already exists."
 fi
 
 echo 'Starting Flask server...'

@@ -3,7 +3,7 @@ from dotenv import set_key
 import pathlib
 from key_generator.key_generator import generate
 
-env_file_path = (pathlib.Path(__file__).resolve().parent / "../../.env").resolve()
+env_file_path = (pathlib.Path(__file__).resolve().parent / "../.env").resolve()
 
 if not env_file_path.exists():
     env_file_path.touch(mode=0o600)
